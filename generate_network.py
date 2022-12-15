@@ -26,15 +26,15 @@ def init_arg_parser() :
             prog = 'generate_network',
             description = '''Generates and outputs 
             the Waku network conforming to input parameters''',
-            epilog = 'Text at the bottom of help')
+            epilog = 'The defaults are: -o "Topology.json" ; -n 1;  -t 1; -T "Newmann"')
     # Adding optional arguments with defaults
     parser.add_argument("-o", "--output", 
             default='Topology.json', dest='fname', 
-            help='The output json filename for the Waku network', 
+            help='output json filename for the Waku network', 
             type=str, metavar='<file_name>')
     parser.add_argument("-n", "--numnodes", 
             default=1, dest='num_nodes', 
-            help='The number of nodes in the Waku network', 
+            help='number of nodes in the Waku network', 
             type=int, metavar='<#nodes>')
 #    parser.add_argument("-e", "--numedges",
 #            default=1, dest='num_edges', 
@@ -46,11 +46,11 @@ def init_arg_parser() :
 #            type=int, metavar='<#partitions>')
     parser.add_argument("-t", "--numtopics", 
             default=1, dest='num_topics', 
-            help='The number of topics in the Waku network', 
+            help='number of topics in the Waku network', 
             type=int, metavar='<#topics>')
     parser.add_argument("-T", "--type", 
             default="Neumann", dest='nw_type', 
-            help='The network type of the Waku network', 
+            help='network type of the Waku network', 
             type=str, metavar='<type>')
     return parser
 
@@ -78,21 +78,19 @@ def get_random_sublist(topics):
     for i in range(lo, hi):
         sublist.append(topics[i])
     return sublist
-#def get_sublists(length):
-#    return [lst[i:i + length] for i in range(len(lst) - length + 1)]
 
-
-
-
+#extract the CLI arguments
 args = init_arg_parser().parse_args()
+
 #arguments to generate the nwtworks
 fname = args.fname
 num_nodes = args.num_nodes
-#num_edges = args.num_edges
-#num_parts = args.num_parts
 num_topics = args.num_topics
 nw_type = args.nw_type
 
+## do we need them? 
+#num_edges = args.num_edges
+#num_parts = args.num_parts
 
 # waku defaults
 prefix = "waku_"
