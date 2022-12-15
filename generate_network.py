@@ -2,18 +2,19 @@
 
 import matplotlib.pyplot as mp
 import networkx as nx
+import networkx.readwrite.json_graph
 import random, math
-from random import randint
 import json
 import argparse,sys
 
 def write_json(filename, data_2_dump):
     json.dump(data_2_dump, open(filename,'w'), indent=2)
 
+# has trouble with non-integer/non-hashable keys 
 def read_json(filename):
     with open(filename) as f:
-        js_graph = json.load(f)
-    return json_graph.node_link_graph(js_graph)
+        jdata = json.load(f)
+    return nx.node_link_graph(jdata)
 
 def draw(H):
     nx.draw(H, pos=nx.kamada_kawai_layout(H), with_labels=True)
@@ -21,14 +22,13 @@ def draw(H):
     mp.savefig("topology.png", format="PNG")
 
 def init_arg_parser() :
-    # Initialize parser
+    # Initialize parser, add arguments and set the defaults
     parser = argparse.ArgumentParser(
             prog = 'generate_network',
             description = '''Generates and outputs 
             the Waku network conforming to input parameters''',
             epilog = '''The defaults are: -o "Topology.json"; 
             -n 1;  -t 1;  -p 1; -T "configuration_model"''')
-    # Adding optional arguments with defaults
     parser.add_argument("-o", "--output", 
             default='Topology.json', dest='fname', 
             help='output json filename for the Waku network', 
@@ -45,18 +45,18 @@ def init_arg_parser() :
             default="configuration_model", dest='nw_type', 
             help='network type of the Waku network', 
             type=str, metavar='<type>')
-#    parser.add_argument("-e", "--numedges",
-#            default=1, dest='num_edges', 
-#            help='The number of edges in the Waku network', 
-#            type=int, metavar='#edges>')
     parser.add_argument("-p", "--numparts", 
             default=1, dest='num_partitions', 
             help='The number of partitions in the Waku network', 
             type=int, metavar='<#partitions>')
+#    parser.add_argument("-e", "--numedges",
+#            default=1, dest='num_edges', 
+#            help='The number of edges in the Waku network', 
+#            type=int, metavar='#edges>')
     return parser
 
 # https://networkx.org/documentation/stable/reference/generated/networkx.generators.degree_seq.configuration_model.html
-def gen_config_model_graph(n):
+def generate_config_model(n):
     #degrees = nx.random_powerlaw_tree_sequence(n, tries=10000)
     degrees = [random.randint(1, n) for i in range(n)]
     if (sum(degrees)) % 2 != 0:         # adjust the degree sum to be even
@@ -64,7 +64,7 @@ def gen_config_model_graph(n):
     G = nx.configuration_model(degrees) # generate the graph
     return G
 
-def gen_topic_string(n):
+def generate_topic_string(n):
     rs = ""
     for _ in range(n):
         r = random.randint(65, 65 + 26 - 1) # only letters
@@ -72,19 +72,19 @@ def gen_topic_string(n):
     return rs
 
 def generate_topics(num_topics):
-    # generate the topics - uppercase alphabetic chars prefixed by topic
+    # generate the topics - uppercase chars prefixed by "topic"
     topics = []
     base = 26
     topic_len = int(math.log(num_topics)/math.log(base)) + 1
     topics = {}
     for i in range(num_topics):
-        topics[i] = "topic_" + gen_topic_string(topic_len)
+        topics[i] = "topic_" + generate_topic_string(topic_len)
     return topics
 
 def get_random_sublist(topics):
     n = len(topics)
-    lo = randint(0, n - 1)
-    hi = randint(lo + 1, n)
+    lo = random.randint(0, n - 1)
+    hi = random.randint(lo + 1, n)
     sublist = []
     for i in range(lo, hi):
         sublist.append(topics[i])
@@ -93,7 +93,7 @@ def get_random_sublist(topics):
 def generate_network(num_nodes, prefix):
     G = nx.empty_graph()
     if nw_type == "configuration_model":
-        G = gen_config_model_graph(num_nodes)
+        G = generate_config_model(num_nodes)
     else: 
         print(nw_type +": Unsupported network type")
         sys.exit(1)
@@ -128,17 +128,17 @@ def generate_dump_data(H, topics):
 #extract the CLI arguments
 args = init_arg_parser().parse_args()
 
-#arguments to generate the nwtworks
+#parameters to generate the network
 fname = args.fname
 num_nodes = args.num_nodes
 num_topics = args.num_topics
 nw_type = args.nw_type
 prefix = "waku_"     
 num_partitions = args.num_partitions
-#num_edges = args.num_edges     ## do we need to control num edges?
+#num_edges = args.num_edges     ## do we need to control #edges?
 
-if num_partitions != 1 :
-    print("Sorry, we do not yet support partitions")
+if num_partitions > 1 :
+    print("-p",num_partitions, ": Sorry, we do not yet support partitions")
     sys.exit(1)
 
 # Generate the network and postprocess it

@@ -1,0 +1,10 @@
+# gvim
+*.swp
+*.swo
+*~
+
+# local json
+Topology.*
+topology.*
+*.json
+*.png
