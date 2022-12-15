@@ -49,7 +49,7 @@ def init_arg_parser() :
             help='number of topics in the Waku network', 
             type=int, metavar='<#topics>')
     parser.add_argument("-T", "--type", 
-            default="Neumann", dest='nw_type', 
+            default="configuration_model", dest='nw_type', 
             help='network type of the Waku network', 
             type=str, metavar='<type>')
     return parser
@@ -100,7 +100,7 @@ topics = []
 
 # generate  the network
 G = nx.empty_graph()
-if nw_type == "Neumann":
+if nw_type == "configuration_model":
     G = gen_newmann_graph(num_nodes)
 else: 
     print(nw_type +": Unsupported Network Type")
