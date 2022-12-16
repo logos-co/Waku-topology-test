@@ -1,11 +1,11 @@
 This repo contains the scripts to generate various network topologies for the wakukurtosis runs. 
 
 ## generate_network.py
-run_kurtosis_tests.sh will kurtosis on a set of json files given under a directory. It trquires two params. First is the directory of json files. Second is the github root/prefix of the kurtosis module you run the tests under.</br>
+run_kurtosis_tests.sh will kurtosis on a set of json files given under a directory. It requires two params. First is the directory of json files. Second is the github root/prefix of the kurtosis module you run the tests under.</br>
 
 usage: ./run_kurtosis_tests.sh <input dir> <repo prefix> </br>
 
-Running this script is somewhat complicated; so follow the following instructions to a dot.
+Running this script is somewhat complicated; so follow the following instructions to a dot. You *WILL* require the main.star provided here. The main.star just instantiates the nodes, do not connect them.
 
 #### step 0)
   symlink this script and the main.star to the root of ur kurtosis module.</br>
