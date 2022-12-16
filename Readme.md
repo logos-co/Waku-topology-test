@@ -8,13 +8,16 @@ usage: ./run_kurtosis_tests.sh <input_dir> <repo_prefix> </br>
 Running this script is somewhat complicated; so follow the following instructions to a dot. You *WILL* require the main.star provided here. The main.star just instantiates the nodes, do not connect them.
 
 #### step 0)
-  symlink  run_kurtosis_tests.sh  and main.star to the root directory of your kurtosis module.</br>
+  symlink  run_kurtosis_tests.sh to the root directory of your kurtosis module.</br>
 #### step 1)
+  backup the module's own main.star. copy the main.star provided here to the root directory of your kurtosis module.</br>
+     !!! WARNING: symlinking the main.star will NOT work !!!</br>
+#### step 3)
   put all the json files you want to use in a directory</br>
-#### step 2)
+#### step 3)
    copy that entire directory to the root of your kurtosis module</br>
    !!! WARNING: symlinking the directory will NOT work !!!</br>
-#### step 3)
+#### step 4)
    run this script in the root directory of the kurtosis module. provide the directory and the git-root of the kurtosis module as arguments to the script</br>
 
 
@@ -31,7 +34,7 @@ generate_network.py can generate networks with specified number of nodes and top
 usage: generate_network [-h] [-o <file_name>] [-n <#nodes>] [-t <#topics>]
                         [-T <type>] <br>
 </br>
-Generates and outputs the Waku network conforming to input parameters<br>
+Generates and outputs the Waku network conforming to input parameters<//br>
 </br>
 optional arguments:</br>
 &emsp;  -h, --help            show this help message and exit</br>
