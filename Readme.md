@@ -1,4 +1,10 @@
-This repo contains the scripts to generate various network topologies for wakukurtosis runs. It can generate networks with specified number of nodes and topics. the network types currently supported is "configuration_model" and more is on the way. Use with Python3.
+This repo contains the scripts to generate various network topologies for the wakukurtosis runs. 
+
+## gen_jsons.sh
+gen_jsons.sh can generate a specified number of networks under the given directory. Please make sure that the directory exists. The parameters are generated at random; edit the MIN and MAX for finer control.
+
+## generate_network.py
+generate_network.py can generate networks with specified number of nodes and topics. the network types currently supported is "configuration_model" and more is on the way. Use with Python3.
 
 usage: generate_network [-h] [-o <file_name>] [-n <#nodes>] [-t <#topics>]
                         [-T <type>] <br>
