@@ -40,6 +40,6 @@ generate_network.py can generate networks with specified number of nodes and top
 >> &emsp;  -n <#nodes>, --numnodes <#nodes> number of nodes in the Waku network </br>
 >> &emsp;  -t <#topics>, --numtopics <#topics> number of topics in the Waku network </br>
 >> &emsp;  -T <type>, --type <type>  network type for the Waku network </br>
->> &emsp;  -p <#partitions>, --numparts <#partitions> number of partitions in the Waku network
->> </br>
+>> &emsp;  -p <#partitions>, --numparts <#partitions> number of partitions in the Waku network</br>
+  >></br>
 >>The defaults are: -o "Topology.json"; -n 1; -t 1; -p 1; -T "configuration_model"</br>
