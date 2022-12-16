@@ -1,7 +1,6 @@
 #!/bin/sh
 
-
-#max and min for topics and num nodes
+#MAX and MIN for topics and num nodes
 MIN=5
 MAX=100
 
@@ -21,7 +20,7 @@ getrand1(){
 }
 
 if [ "$#" -ne 2 ] || [ $2 -le 0 ] || ! [ -d "$1" ]; then
-  echo "Usage: $0 <output dir> <#json files needed>" >&2
+  echo "usage: $0 <output dir> <#json files needed>" >&2
   exit 1
 fi
 

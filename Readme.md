@@ -1,7 +1,9 @@
 This repo contains the scripts to generate various network topologies for the wakukurtosis runs. 
 
 ## gen_jsons.sh
-gen_jsons.sh can generate a specified number of networks under the given directory. Please make sure that the directory exists. The parameters are generated at random; edit the MIN and MAX for finer control.
+gen_jsons.sh can generate given number of Waku networs and outputs them to a directory. Please make sure that the output directory exists; both relative and absolute paths work. The parameters are generated at random; edit the MIN and MAX for finer control. The script requires bc & /dev/urandom.
+
+usage: ./gen_jsons.sh <output dir> <#json files needed>
 
 ## generate_network.py
 generate_network.py can generate networks with specified number of nodes and topics. the network types currently supported is "configuration_model" and more is on the way. Use with Python3.

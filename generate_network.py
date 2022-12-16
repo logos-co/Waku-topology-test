@@ -152,4 +152,4 @@ dump_data = generate_dump_data(H, topics)
 
 # dump the network to the json file
 write_json(fname, dump_data)
-draw(H)
+#draw(H)
