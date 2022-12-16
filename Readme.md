@@ -14,7 +14,7 @@ Running this script is somewhat complicated; so follow the following instruction
 #### step 2)
    copy that entire directory to the root of your kurtosis module</br>
    !!! WARNING: symlinking the directory will NOT work !!!</br>
-###step 3)
+#### step 3)
    run this script in the root directory of the kurtosis module. provide the directory and the git-root of the kurtosis module as arguments to the script</br>
 
 
