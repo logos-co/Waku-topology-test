@@ -3,7 +3,7 @@ This repo contains the scripts to generate various network topologies for the wa
 ## run_kurtosis_tests.sh
 run_kurtosis_tests.sh will kurtosis on a set of json files given under a directory. It requires two params. First is the directory of json files. Second is the github root/prefix of the kurtosis module you run the tests under.</br>
 
-usage: ./run_kurtosis_tests.sh <input dir> <repo prefix> </br>
+usage: ./run_kurtosis_tests.sh <input_dir> <repo-prefix> </br>
 
 Running this script is somewhat complicated; so follow the following instructions to a dot. You *WILL* require the main.star provided here. The main.star just instantiates the nodes, do not connect them.
 
@@ -23,7 +23,7 @@ Running this script is somewhat complicated; so follow the following instruction
 ## gen_jsons.sh
 gen_jsons.sh can generate given number of Waku networs and outputs them to a directory. Please make sure that the output directory exists; both relative and absolute paths work. The parameters are generated at random; edit the MIN and MAX for finer control. The script requires bc & /dev/urandom.<br>
 
-usage: ./gen_jsons.sh <output dir> <#json files needed> </br>
+usage: ./gen_jsons.sh <output_dir> <#json files needed> </br>
 
 ## generate_network.py
 generate_network.py can generate networks with specified number of nodes and topics. the network types currently supported is "configuration_model" and more is on the way. Use with Python3.
