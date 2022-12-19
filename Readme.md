@@ -1,7 +1,7 @@
 This repo contains the scripts to generate different network models for wakukurtosis runs. 
 
 ## run_kurtosis_tests.sh
-run_kurtosis_tests.sh will run kurtosis on a set of json files in the input directory. It requires two arguments. First is a directory containing json files; other files in the directory are ignored. Second is the github root/prefix of the kurtosis module you run the tests under.</br>
+run_kurtosis_tests.sh will run kurtosis on a set of json files in a directory. It requires two arguments. First is a directory containing json files; other file types in the directory are ignored. Second is the github root/prefix of the kurtosis module you run the tests under.</br>
 
 > usage: ./run_kurtosis_tests.sh <input_dir> <repo_prefix> </br>
 
