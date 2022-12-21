@@ -6,7 +6,7 @@ import random, math
 import json
 import argparse, os, sys
 
-# dump to json file
+# Dump to a json file
 def write_json(filename, data_2_dump):
     json.dump(data_2_dump, open(filename,'w'), indent=2)
 
@@ -18,7 +18,7 @@ def read_json(filename):
     return nx.node_link_graph(jdata)
 
 
-# draw the network and output the image to a file
+# Draw the network and output the image to a file
 def draw(fname, H):
     nx.draw(H, pos=nx.kamada_kawai_layout(H), with_labels=True)
     plt.savefig(os.path.splitext(fname)[0] + ".png", format="png")
