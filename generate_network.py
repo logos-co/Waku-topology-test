@@ -179,8 +179,8 @@ def main():
     dump_data = generate_dump_data(H, topics)
     # Dump the network in a json file
     write_json(fname, dump_data)
-    # Display the graph i
-    draw(fname, H)
+    # Display the graph
+    #draw(fname, H)
 
 
 if __name__ == "__main__":
