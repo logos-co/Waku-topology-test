@@ -27,7 +27,7 @@ gen_jsons.sh can generate given number of Waku networs and outputs them to a dir
 > usage: ./gen_jsons.sh <output_dir> <#json files needed> </br>
 
 ## generate_network.py
-generate_network.py can generate networks with specified number of nodes and topics. the network types currently supported is "configuration_model" and more are on the way. Use with Python3.
+generate_network.py can generate networks with specified number of nodes and topics. the network types currently supported is "configuration_model" and more are on the way. Use with Python3. Comment out the `#draw(fname, H)` line to visualise the generated graph.
 
 > usage: generate_network [-h] [-o <file_name>] [-n <#nodes>] [-t <#topics>]
                         [-T <type>] <br>
