@@ -66,7 +66,7 @@ def get_options():
 def generate_topic_string(n):
     rs = ""
     for _ in range(n):
-        r = random.randint(65, 65 + 26 - 1) # only letters
+        r = random.randint(65, 65 + 26 - 1) # generate a random UC char
         rs += (chr(r))                      # append the char generated
     return rs
 
@@ -76,9 +76,7 @@ def generate_topics(num_topics):
     topics = []
     base = 26
     topic_len = int(math.log(num_topics)/math.log(base)) + 1
-    topics = {}
-    for i in range(num_topics):
-        topics[i] = "topic_" + generate_topic_string(topic_len)
+    topics = {i: f"topic_{generate_topic_string(topic_len)}" for i in range(num_topics)}
     return topics
 
 
@@ -134,9 +132,7 @@ def postprocess_network(G, prefix):
     G = nx.Graph(G)         # prune out parallel/multi edges
     G.remove_edges_from(nx.selfloop_edges(G))   # Removing self-loops
     # Labeling nodes to match waku containers
-    mapping = {}
-    for i in range(len(G)):
-        mapping[i] = prefix + str(i)
+    mapping = {i: f"{prefix}{i}" for i in range(len(G))}
     return nx.relabel_nodes(G, mapping)
 
 
@@ -180,7 +176,7 @@ def main():
     # Dump the network in a json file
     write_json(fname, dump_data)
     # Display the graph
-    #draw(fname, H)
+    draw(fname, H)
 
 
 if __name__ == "__main__":
