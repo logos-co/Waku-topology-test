@@ -107,7 +107,7 @@ def generate_scalefree_graph(n):
 
 
 # n must be larger than k=D=3
-def generate_newman_watts_strogatz_graph(n):
+def generate_newmanwattsstrogatz_graph(n):
     return nx.newman_watts_strogatz_graph(n, 3, 0.5)
 
 
@@ -125,24 +125,16 @@ def generate_star_graph(n):
 
 
 # Generate the network from nw type
-def generate_network(num_nodes, nw_type):
-    G = nx.empty_graph()
-    if nw_type == networkType.configmodel:
-        G = generate_config_model(num_nodes)
-    elif nw_type == networkType.scalefree:
-        G = generate_scalefree_graph(num_nodes)
-    elif nw_type == networkType.newmanwattsstrogatz:
-        G = generate_newman_watts_strogatz_graph(num_nodes) 
-    elif nw_type == networkType.barbell:
-        G = generate_barbell_graph(num_nodes) 
-    elif nw_type == networkType.balancedtree:
-        G = generate_balanced_tree(num_nodes) 
-    elif nw_type == networkType.star:
-        G = generate_star_graph(num_nodes) 
-    else: 
-        print(f"{nw_type} : Unsupported network type")
-        sys.exit(1)
-    return postprocess_network(G)
+def generate_network(n, nw_type):
+    switch = {
+        networkType.configmodel: generate_config_model(n),
+        networkType.scalefree: generate_scalefree_graph(n),
+        networkType.newmanwattsstrogatz: generate_newmanwattsstrogatz_graph(n), 
+        networkType.barbell: generate_barbell_graph(n),
+        networkType.balancedtree: generate_balanced_tree(n), 
+        networkType.star: generate_star_graph(n)
+    }
+    return postprocess_network(switch.get(nw_type))
 
 
 # Label the generated network with prefix
@@ -158,14 +150,11 @@ def postprocess_network(G):
 #Generate per node toml configs
 def generate_toml(topics, node_type=nodeType.desktop):
     topic_str =  " ". join(get_random_sublist(topics))    # topics as a space separated string
-    if node_type == nodeType.desktop:
-        toml = "rpc-admin = true\nkeep-alive = true\n"
-    elif node_type == nodeType.mobile:
-        toml =  "rpc-admin = true\nkeep-alive = true\n"
-    else:
-        print(f"{node_type} : Unsupported node type")
-        sys.exit(1)
-    toml = f"{toml}topics = \"{topic_str}\"\n"
+    switch = {
+        nodeType.desktop: "rpc-admin = true\nkeep-alive = true\n",
+        nodeType.mobile: "rpc-admin = true\nkeep-alive = true\n"
+    }
+    toml = f"{switch.get(node_type)}topics = \"{topic_str}\"\n"
     return toml
 
 
