@@ -10,7 +10,7 @@ import typer
 from enum import Enum
 
 # Consts
-class nw_types(Enum):
+class networkType(Enum):
     configmodel = "CONFIGMODEL"
     scalefree = "SCALEFREE"                     # power law
     newmanwattsstrogatz = "NEWMANWATTSSTROGATZ" # mesh, smallworld
@@ -18,33 +18,33 @@ class nw_types(Enum):
     balancedtree = "BALANCEDTREE"               # committees?
     star = "STAR"                               # spof
 
-class node_types(Enum):
+class nodeType(Enum):
     desktop = "DESKTOP"
     mobile = "MOBILE"
 
-nw_fname = "network_data.json"
-prefix = "waku_"
+NW_DATA_FNAME = "network_data.json"
+PREFIX = "waku_"
 
 ### I/O related fns ###########################################################
 
 # Dump to a json file
 def write_json(dirname, json_dump):
-    fname = os.path.join(dirname, nw_fname)
-    json.dump(json_dump, open(fname,'w'), indent=2)
+    fname = os.path.join(dirname, NW_DATA_FNAME)
+    with open(fname, "w") as f:
+        json.dump(json_dump, f, indent=2)
 
 
 def write_toml(dirname, node_name, toml):
-    fname = os.path.join(dirname, node_name+ ".toml")
-    f = open(fname, 'w')
-    f.write(toml)
-    f.close()
+    fname = os.path.join(dirname, f"{node_name}.toml")
+    with open(fname, "w") as f:
+        f.write(toml)
 
 
 # Draw the network and output the image to a file
 def draw(dirname, H):
     nx.draw(H, pos=nx.kamada_kawai_layout(H), with_labels=True)
-    fname = os.path.join(dirname, nw_fname)
-    plt.savefig(os.path.splitext(fname)[0] + ".png", format="png")
+    fname = os.path.join(dirname, NW_DATA_FNAME)
+    plt.savefig(f"{os.path.splitext(fname)[0]}.png", format="png")
     plt.show()
 
 
@@ -54,6 +54,17 @@ def read_json(fname):
         jdata = json.load(f)
     return nx.node_link_graph(jdata)
 
+def exists_and_nonempty(dirname):
+    if not os.path.exists(dirname):
+        return False
+    elif not os.path.isfile(dirname) and os.listdir(dirname):
+        print(f"{dirname}: exists and not empty")
+        return True
+    elif os.path.isfile(dirname):
+        print(f"{dirname}: exists but not a directory")
+        return True
+    else:
+        return False
 
 ### topics related fns ###########################################################
 
@@ -116,20 +127,20 @@ def generate_star_graph(n):
 # Generate the network from nw type
 def generate_network(num_nodes, nw_type):
     G = nx.empty_graph()
-    if nw_type == nw_types.configmodel:
+    if nw_type == networkType.configmodel:
         G = generate_config_model(num_nodes)
-    elif nw_type == nw_types.scalefree:
+    elif nw_type == networkType.scalefree:
         G = generate_scalefree_graph(num_nodes)
-    elif nw_type == nw_types.newmanwattsstrogatz:
+    elif nw_type == networkType.newmanwattsstrogatz:
         G = generate_newman_watts_strogatz_graph(num_nodes) 
-    elif nw_type == nw_types.barbell:
+    elif nw_type == networkType.barbell:
         G = generate_barbell_graph(num_nodes) 
-    elif nw_type == nw_types.balancedtree:
+    elif nw_type == networkType.balancedtree:
         G = generate_balanced_tree(num_nodes) 
-    elif nw_type == nw_types.star:
+    elif nw_type == networkType.star:
         G = generate_star_graph(num_nodes) 
     else: 
-        print(nw_type +": Unsupported network type")
+        print(f"{nw_type} : Unsupported network type")
         sys.exit(1)
     return postprocess_network(G)
 
@@ -138,37 +149,28 @@ def generate_network(num_nodes, nw_type):
 def postprocess_network(G):
     G = nx.Graph(G)                             # prune out parallel/multi edges
     G.remove_edges_from(nx.selfloop_edges(G))   # remove the self-loops
-    mapping = {i: f"{prefix}{i}" for i in range(len(G))}
+    mapping = {i: f"{PREFIX}{i}" for i in range(len(G))}
     return nx.relabel_nodes(G, mapping)         # label the nodes
 
 
 ### file format related fns ###########################################################
 
 #Generate per node toml configs
-def generate_toml(topics, node_type=node_types.desktop):
+def generate_toml(topics, node_type=nodeType.desktop):
     topic_str =  " ". join(get_random_sublist(topics))    # topics as a space separated string
-    if node_type == node_type.desktop:
+    if node_type == nodeType.desktop:
         toml = "rpc-admin = true\nkeep-alive = true\n"
-    elif node_type == node_type.mobile:
+    elif node_type == nodeType.mobile:
         toml =  "rpc-admin = true\nkeep-alive = true\n"
     else:
-        print(node_type +": Unsupported node type")
+        print(f"{node_type} : Unsupported node type")
         sys.exit(1)
-    toml += f"topics = \"{topic_str}\"\n"
+    toml = f"{toml}topics = \"{topic_str}\"\n"
     return toml
 
 
 # Generates network-wide json and per-node toml and writes them 
-def generate_and_write_files(dirname, num_topics, H):
-    if not os.path.exists(dirname):
-        os.mkdir(dirname)
-    elif not os.path.isfile(dirname) and os.listdir(dirname):
-        print(dirname +": exists and is not empty")
-        sys.exit(1)
-    elif os.path.isfile(dirname):
-        print(dirname +": exists and is not a directory")
-        sys.exit(1)
-
+def generate_and_write_files(dirname, num_topics, H): 
     topics = generate_topics(num_topics)
     json_dump = {}
     for node in H.nodes:
@@ -183,8 +185,8 @@ def generate_and_write_files(dirname, num_topics, H):
 ### the main ###########################################################
 def main(
         dirname: str = "Waku", num_nodes: int = 3, num_topics: int = 1, 
-        nw_type: nw_types = "NEWMANWATTSSTROGATZ", 
-        node_type: node_types = "DESKTOP",
+        nw_type: networkType = "NEWMANWATTSSTROGATZ", 
+        node_type: nodeType = "DESKTOP",
         num_partitions: int = 1):
 
     if num_partitions > 1:
@@ -196,6 +198,10 @@ def main(
     postprocess_network(G)
 
     # Generate file format specific data structs and write the files; optionally, draw the network
+    if exists_and_nonempty(dirname) :
+        sys.exit(1)
+    os.makedirs(dirname, exist_ok=True)
+
     generate_and_write_files(dirname, num_topics, G)
     draw(dirname, G)
 

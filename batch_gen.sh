@@ -42,6 +42,6 @@ do
   t=$((RANDOM+1))
   dirname="$path/$i/Waku"
   mkdir "$path/$i"
-  echo "Generating ./generate_network.py --dirname $dirname --num-nodes $n --num-topics $t --nw-type $nwtype --node-type $nodetype --num-partitions 1"
+  echo "Generating ./generate_network.py --dirname $dirname --num-nodes $n --num-topics $t --nw-type $nwtype --node-type $nodetype --num-partitions 1 ...."
   $(./generate_network.py --dirname $dirname --num-nodes $n --num-topics $t --nw-type $nwtype --node-type $nodetype --num-partitions 1)
 done
