@@ -3,6 +3,10 @@
 *.swo
 *~
 
+# dirs
+Waku
+WakuNetwork
+
 # local json
 Topology.*
 topology.*

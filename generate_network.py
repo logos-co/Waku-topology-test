@@ -10,10 +10,9 @@ import typer
 from enum import Enum
 
 
-# Enums Consts
+# Enums & Consts
 
-
-# To add a new node type, add appropriate entries to the enum and switch
+# To add a new node type, add appropriate entries to the nodeType and nodeTypeSwitch
 class nodeType(Enum):
     DESKTOP = "desktop" # waku desktop config
     MOBILE  = "mobile"  # waku mobile config
@@ -24,8 +23,8 @@ nodeTypeSwitch = {
     }
 
 
-# To add a new network type, add appropriate entries to the enum and switch
-# the networkTypeSwitch is before generate_network(); no fwd declaration with typer/python
+# To add a new network type, add appropriate entries to the networkType and networkTypeSwitch
+# the networkTypeSwitch is placed before generate_network(): fwd declaration mismatch with typer/python :/
 class networkType(Enum):
     CONFIGMODEL         = "configmodel"
     SCALEFREE           = "scalefree"           # power law
@@ -34,11 +33,12 @@ class networkType(Enum):
     BALANCEDTREE        = "balancedtree"        # committees?
     STAR                = "star"                # spof
 
+
 NW_DATA_FNAME = "network_data.json"
 PREFIX = "waku_"
 
 
-### I/O related fns ###########################################################
+### I/O related fns ##############################################################
 
 # Dump to a json file
 def write_json(dirname, json_dump):
@@ -67,6 +67,7 @@ def read_json(fname):
         jdata = json.load(f)
     return nx.node_link_graph(jdata)
 
+
 def exists_and_nonempty(dirname):
     if not os.path.exists(dirname):
         return False
@@ -79,7 +80,8 @@ def exists_and_nonempty(dirname):
     else:
         return False
 
-### topics related fns ###########################################################
+
+### topics related fns #############################################################
 
 # Generate a random string of upper case chars
 def generate_random_string(n):
@@ -104,7 +106,7 @@ def get_random_sublist(topics):
     return sublist
 
 
-### network processing related fns ###########################################################
+### network processing related fns #################################################
 
 # Network Types
 def generate_config_model(n):
@@ -168,7 +170,7 @@ def generate_toml(topics, node_type=nodeType.DESKTOP):
 
 
 # Generates network-wide json and per-node toml and writes them 
-def generate_and_write_files(dirname, num_topics, H): 
+def generate_and_write_files(dirname, num_topics, H):
     topics = generate_topics(num_topics)
     json_dump = {}
     for node in H.nodes:
@@ -180,26 +182,26 @@ def generate_and_write_files(dirname, num_topics, H):
     write_json(dirname, json_dump)                              # network wide json
 
 
-### the main ###########################################################
+### the main ##########################################################################
 def main(
-        dirname: str = "Waku", num_nodes: int = 4, num_topics: int = 1, 
+        dirname: str = "WakuNetwork", num_nodes: int = 4, num_topics: int = 1, 
         nw_type: networkType = networkType.NEWMANWATTSSTROGATZ.value, 
         node_type: nodeType = nodeType.DESKTOP.value,
         num_partitions: int = 1):
 
     if num_partitions > 1:
-        print("-p",num_partitions, "Sorry, we do not yet support partitions")
+        print(f"--num-partitions {num_partitions}, Sorry, we do not yet support partitions")
         sys.exit(1)
 
-    # Generate the network and post-process 
+    # Generate the network
     G = generate_network(num_nodes, nw_type)
 
-    # Generate file format specific data structs and write the files; optionally, draw the network
+    # Refuse to overwrite non-empty dirs
     if exists_and_nonempty(dirname) :
         sys.exit(1)
     os.makedirs(dirname, exist_ok=True)
 
-    # write files and draw the network
+    # Generate file format specific data structs and write the files; optionally, draw the network
     generate_and_write_files(dirname, num_topics, G)
     draw(dirname, G)
 
