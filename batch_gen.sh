@@ -19,18 +19,20 @@ getrand1(){
   #n=$? 
 }
 
-if [ "$#" -ne 2 ] || [ $2 -le 0 ] || ! [ -d "$1" ]; then
+if [ "$#" -ne 2 ] || [ $2 -le 0 ] ; then
   echo "usage: $0 <output dir> <#json files needed>" >&2
   exit 1
 fi
 
 path=$1
 nfiles=$2
+mkdir -p $path
 
 echo "Ok, will generate $nfiles networks & put them  under '$path'."
+ 
+nwtype="NEWMANWATTSSTROGATZ"
+nodetype="DESKTOP"
 
-prefix=$path"/WakuNet_"
-suffix=".json"
 
 for i in $(seq $nfiles)
 do
@@ -38,8 +40,8 @@ do
   n=$((RANDOM+1))
   getrand 
   t=$((RANDOM+1))
-  fname=$prefix$i$suffix
-  nwtype="configuration_model"
-  $(./generate_network.py -n $n -t $t -T $nwtype -o $fname)
-  echo "#$i\tn=$n\tt=$t\tT=$nwtype\to=$fname"
+  dirname="$path/$i/Waku"
+  mkdir "$path/$i"
+  echo "Generating ./generate_network.py --dirname $dirname --num-nodes $n --num-topics $t --nw-type $nwtype --node-type $nodetype --num-partitions 1 ...."
+  $(./generate_network.py --dirname $dirname --num-nodes $n --num-topics $t --nw-type $nwtype --node-type $nodetype --num-partitions 1)
 done
