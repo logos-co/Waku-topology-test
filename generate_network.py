@@ -9,21 +9,34 @@ import string
 import typer
 from enum import Enum
 
-# Consts
-class networkType(Enum):
-    configmodel = "CONFIGMODEL"
-    scalefree = "SCALEFREE"                     # power law
-    newmanwattsstrogatz = "NEWMANWATTSSTROGATZ" # mesh, smallworld
-    barbell = "BARBELL"                         # partition
-    balancedtree = "BALANCEDTREE"               # committees?
-    star = "STAR"                               # spof
 
+# Enums Consts
+
+
+# To add a new node type, add appropriate entries to the enum and switch
 class nodeType(Enum):
-    desktop = "DESKTOP"
-    mobile = "MOBILE"
+    DESKTOP = "desktop" # waku desktop config
+    MOBILE  = "mobile"  # waku mobile config
+
+nodeTypeSwitch = {
+        nodeType.DESKTOP : "rpc-admin = true\nkeep-alive = true\n",
+        nodeType.MOBILE  : "rpc-admin = true\nkeep-alive = true\n"
+    }
+
+
+# To add a new network type, add appropriate entries to the enum and switch
+# the networkTypeSwitch is before generate_network(); no fwd declaration with typer/python
+class networkType(Enum):
+    CONFIGMODEL         = "configmodel"
+    SCALEFREE           = "scalefree"           # power law
+    NEWMANWATTSSTROGATZ = "newmanwattsstrogatz" # mesh, smallworld
+    BARBELL             = "barbell"             # partition
+    BALANCEDTREE        = "balancedtree"        # committees?
+    STAR                = "star"                # spof
 
 NW_DATA_FNAME = "network_data.json"
 PREFIX = "waku_"
+
 
 ### I/O related fns ###########################################################
 
@@ -124,17 +137,19 @@ def generate_star_graph(n):
     return nx.star_graph(n)
 
 
+networkTypeSwitch = {
+        networkType.CONFIGMODEL : generate_config_model,
+        networkType.SCALEFREE   : generate_scalefree_graph,
+        networkType.NEWMANWATTSSTROGATZ : generate_newmanwattsstrogatz_graph,
+        networkType.BARBELL     : generate_barbell_graph,
+        networkType.BALANCEDTREE: generate_balanced_tree,
+        networkType.STAR        : generate_star_graph
+    }
+
+
 # Generate the network from nw type
 def generate_network(n, nw_type):
-    switch = {
-        networkType.configmodel: generate_config_model(n),
-        networkType.scalefree: generate_scalefree_graph(n),
-        networkType.newmanwattsstrogatz: generate_newmanwattsstrogatz_graph(n), 
-        networkType.barbell: generate_barbell_graph(n),
-        networkType.balancedtree: generate_balanced_tree(n), 
-        networkType.star: generate_star_graph(n)
-    }
-    return postprocess_network(switch.get(nw_type))
+       return postprocess_network(networkTypeSwitch.get(nw_type)(n))
 
 
 # Label the generated network with prefix
@@ -146,16 +161,10 @@ def postprocess_network(G):
 
 
 ### file format related fns ###########################################################
-
 #Generate per node toml configs
-def generate_toml(topics, node_type=nodeType.desktop):
-    topic_str =  " ". join(get_random_sublist(topics))    # topics as a space separated string
-    switch = {
-        nodeType.desktop: "rpc-admin = true\nkeep-alive = true\n",
-        nodeType.mobile: "rpc-admin = true\nkeep-alive = true\n"
-    }
-    toml = f"{switch.get(node_type)}topics = \"{topic_str}\"\n"
-    return toml
+def generate_toml(topics, node_type=nodeType.DESKTOP):
+    topic_str = " ".join(get_random_sublist(topics))   # space separated topics
+    return f"{nodeTypeSwitch.get(node_type)}topics = \"{topic_str}\"\n"
 
 
 # Generates network-wide json and per-node toml and writes them 
@@ -173,24 +182,24 @@ def generate_and_write_files(dirname, num_topics, H):
 
 ### the main ###########################################################
 def main(
-        dirname: str = "Waku", num_nodes: int = 3, num_topics: int = 1, 
-        nw_type: networkType = "NEWMANWATTSSTROGATZ", 
-        node_type: nodeType = "DESKTOP",
+        dirname: str = "Waku", num_nodes: int = 4, num_topics: int = 1, 
+        nw_type: networkType = networkType.NEWMANWATTSSTROGATZ.value, 
+        node_type: nodeType = nodeType.DESKTOP.value,
         num_partitions: int = 1):
 
     if num_partitions > 1:
         print("-p",num_partitions, "Sorry, we do not yet support partitions")
         sys.exit(1)
 
-    # Generate the network and do post-process 
+    # Generate the network and post-process 
     G = generate_network(num_nodes, nw_type)
-    postprocess_network(G)
 
     # Generate file format specific data structs and write the files; optionally, draw the network
     if exists_and_nonempty(dirname) :
         sys.exit(1)
     os.makedirs(dirname, exist_ok=True)
 
+    # write files and draw the network
     generate_and_write_files(dirname, num_topics, G)
     draw(dirname, G)
 
