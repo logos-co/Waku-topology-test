@@ -68,6 +68,7 @@ def read_json(fname):
         jdata = json.load(f)
     return nx.node_link_graph(jdata)
 
+
 # check if the required dir can be created
 def exists_or_nonempty(dirname):
     if not os.path.exists(dirname):
@@ -165,7 +166,7 @@ def postprocess_network(G):
 
 def generate_subnets(G, num_subnets):
     n = len(G.nodes)
-    if num_subnets == n:   # if k == size of the network
+    if num_subnets == n:   # if num_subnets == size of the network
         return {f"{NODE_PREFIX}_{i}": f"{SUBNET_PREFIX}_{i}" for i in range(n)}
 
     lst = list(range(n))
