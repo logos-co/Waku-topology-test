@@ -151,8 +151,8 @@ networkTypeSwitch = {
 
 
 # Generate the network from nw type
-def generate_network(n, nw_type):
-    return postprocess_network(networkTypeSwitch.get(nw_type)(n))
+def generate_network(n, network_type):
+    return postprocess_network(networkTypeSwitch.get(network_type)(n))
 
 
 # Label the generated network with prefix
@@ -209,7 +209,7 @@ def generate_and_write_files(dirname, num_topics, num_subnets, G):
 ### the main ##########################################################################
 def main(
         dirname: str = "WakuNetwork", num_nodes: int = 4, num_topics: int = 1, 
-        nw_type: networkType = networkType.NEWMANWATTSSTROGATZ.value, 
+        network_type: networkType = networkType.NEWMANWATTSSTROGATZ.value, 
         node_type: nodeType = nodeType.DESKTOP.value,
         num_subnets: int = -1,
         num_partitions: int = 1):
@@ -223,7 +223,7 @@ def main(
         num_subnets = num_nodes
 
     # Generate the network
-    G = generate_network(num_nodes, nw_type)
+    G = generate_network(num_nodes, network_type)
 
     # Refuse to overwrite non-empty dirs
     if exists_or_nonempty(dirname) :
