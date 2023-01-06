@@ -69,7 +69,7 @@ def read_json(fname):
     return nx.node_link_graph(jdata)
 
 # check if the required dir can be created
-def exists_and_nonempty(dirname):
+def exists_or_nonempty(dirname):
     if not os.path.exists(dirname):
         return False
     elif not os.path.isfile(dirname) and os.listdir(dirname):
@@ -165,21 +165,19 @@ def postprocess_network(G):
 
 def generate_subnets(G, num_subnets):
     n = len(G.nodes)
-    if num_subnets > n:
-        raise ValueError(f"num_subnets must be <= num_nodes: num_subnets={num_subnets}, num_nodes={n}")
     if num_subnets == n:   # if k == size of the network
         return {f"{NODE_PREFIX}_{i}": f"{SUBNET_PREFIX}_{i}" for i in range(n)}
 
     lst = list(range(n))
     random.shuffle(lst)
-    offsets = sorted(random.sample(range(1, n), num_subnets - 1))
-    offsets.append(n)
+    offsets = sorted(random.sample(range(0, n), num_subnets - 1))
+    offsets.append(n-1)
 
     start = 0
     subnets = {}
     subnet_id =  0
     for end in offsets:
-        for i in range(start, end):
+        for i in range(start, end+1):
             subnets[f"{NODE_PREFIX}_{lst[i]}"] = f"{SUBNET_PREFIX}_{subnet_id}"
         start = end
         subnet_id += 1
@@ -216,10 +214,11 @@ def main(
         num_subnets: int = -1,
         num_partitions: int = 1):
 
+    # sanity checks
     if num_partitions > 1:
-        print(f"--num-partitions {num_partitions}, Sorry, we do not yet support partitions")
-        sys.exit(1)
-    
+        raise ValueError(f"--num-partitions {num_partitions}, Sorry, we do not yet support partitions")
+    if num_subnets > num_nodes:
+        raise ValueError(f"num_subnets must be <= num_nodes: num_subnets={num_subnets}, num_nodes={num_nodes}")
     if num_subnets == -1:
         num_subnets = num_nodes
 
@@ -227,7 +226,7 @@ def main(
     G = generate_network(num_nodes, nw_type)
 
     # Refuse to overwrite non-empty dirs
-    if exists_and_nonempty(dirname) :
+    if exists_or_nonempty(dirname) :
         sys.exit(1)
     os.makedirs(dirname, exist_ok=True)
 
