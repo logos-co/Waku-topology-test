@@ -35,7 +35,8 @@ class networkType(Enum):
 
 
 NW_DATA_FNAME = "network_data.json"
-PREFIX = "waku_"
+NODE_PREFIX = "waku"
+SUBNET_PREFIX = "subnetwork"
 
 
 ### I/O related fns ##############################################################
@@ -53,7 +54,7 @@ def write_toml(dirname, node_name, toml):
         f.write(toml)
 
 
-# Draw the network and output the image to a file
+# Draw the network and output the image to a file; does not account for subnets yet
 def draw(dirname, H):
     nx.draw(H, pos=nx.kamada_kawai_layout(H), with_labels=True)
     fname = os.path.join(dirname, NW_DATA_FNAME)
@@ -68,7 +69,8 @@ def read_json(fname):
     return nx.node_link_graph(jdata)
 
 
-def exists_and_nonempty(dirname):
+# check if the required dir can be created
+def exists_or_nonempty(dirname):
     if not os.path.exists(dirname):
         return False
     elif not os.path.isfile(dirname) and os.listdir(dirname):
@@ -150,16 +152,37 @@ networkTypeSwitch = {
 
 
 # Generate the network from nw type
-def generate_network(n, nw_type):
-       return postprocess_network(networkTypeSwitch.get(nw_type)(n))
+def generate_network(n, network_type):
+    return postprocess_network(networkTypeSwitch.get(network_type)(n))
 
 
 # Label the generated network with prefix
 def postprocess_network(G):
     G = nx.Graph(G)                             # prune out parallel/multi edges
     G.remove_edges_from(nx.selfloop_edges(G))   # remove the self-loops
-    mapping = {i: f"{PREFIX}{i}" for i in range(len(G))}
+    mapping = {i: f"{NODE_PREFIX}_{i}" for i in range(len(G))}
     return nx.relabel_nodes(G, mapping)         # label the nodes
+
+
+def generate_subnets(G, num_subnets):
+    n = len(G.nodes)
+    if num_subnets == n:   # if num_subnets == size of the network
+        return {f"{NODE_PREFIX}_{i}": f"{SUBNET_PREFIX}_{i}" for i in range(n)}
+
+    lst = list(range(n))
+    random.shuffle(lst)
+    offsets = sorted(random.sample(range(0, n), num_subnets - 1))
+    offsets.append(n-1)
+
+    start = 0
+    subnets = {}
+    subnet_id =  0
+    for end in offsets:
+        for i in range(start, end+1):
+            subnets[f"{NODE_PREFIX}_{lst[i]}"] = f"{SUBNET_PREFIX}_{subnet_id}"
+        start = end
+        subnet_id += 1
+    return subnets 
 
 
 ### file format related fns ###########################################################
@@ -170,40 +193,47 @@ def generate_toml(topics, node_type=nodeType.DESKTOP):
 
 
 # Generates network-wide json and per-node toml and writes them 
-def generate_and_write_files(dirname, num_topics, H):
+def generate_and_write_files(dirname, num_topics, num_subnets, G):
     topics = generate_topics(num_topics)
+    subnets = generate_subnets(G, num_subnets)
     json_dump = {}
-    for node in H.nodes:
+    for node in G.nodes:
         write_toml(dirname, node, generate_toml(topics))        # per node toml
         json_dump[node] = {}
         json_dump[node]["static-nodes"] = []
-        for edge in H.edges(node):
+        for edge in G.edges(node):
             json_dump[node]["static-nodes"].append(edge[1])
+        json_dump[node][SUBNET_PREFIX] = subnets[node]
     write_json(dirname, json_dump)                              # network wide json
 
 
 ### the main ##########################################################################
 def main(
         dirname: str = "WakuNetwork", num_nodes: int = 4, num_topics: int = 1, 
-        nw_type: networkType = networkType.NEWMANWATTSSTROGATZ.value, 
+        network_type: networkType = networkType.NEWMANWATTSSTROGATZ.value, 
         node_type: nodeType = nodeType.DESKTOP.value,
+        num_subnets: int = -1,
         num_partitions: int = 1):
 
+    # sanity checks
     if num_partitions > 1:
-        print(f"--num-partitions {num_partitions}, Sorry, we do not yet support partitions")
-        sys.exit(1)
+        raise ValueError(f"--num-partitions {num_partitions}, Sorry, we do not yet support partitions")
+    if num_subnets > num_nodes:
+        raise ValueError(f"num_subnets must be <= num_nodes: num_subnets={num_subnets}, num_nodes={num_nodes}")
+    if num_subnets == -1:
+        num_subnets = num_nodes
 
     # Generate the network
-    G = generate_network(num_nodes, nw_type)
+    G = generate_network(num_nodes, network_type)
 
     # Refuse to overwrite non-empty dirs
-    if exists_and_nonempty(dirname) :
+    if exists_or_nonempty(dirname) :
         sys.exit(1)
     os.makedirs(dirname, exist_ok=True)
 
     # Generate file format specific data structs and write the files; optionally, draw the network
-    generate_and_write_files(dirname, num_topics, G)
-    draw(dirname, G)
+    generate_and_write_files(dirname, num_topics, num_subnets, G)
+    #draw(dirname, G)
 
 
 if __name__ == "__main__":

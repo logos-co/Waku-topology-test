@@ -30,8 +30,8 @@ mkdir -p $path
 
 echo "Ok, will generate $nfiles networks & put them  under '$path'."
  
-nwtype="NEWMANWATTSSTROGATZ"
-nodetype="DESKTOP"
+nwtype="newmanwattsstrogatz"
+nodetype="desktop"
 
 
 for i in $(seq $nfiles)
@@ -40,8 +40,11 @@ do
   n=$((RANDOM+1))
   getrand 
   t=$((RANDOM+1))
+  getrand 
+  s=`expr $((RANDOM+1)) % $n`
+
   dirname="$path/$i/Waku"
   mkdir "$path/$i"
-  echo "Generating ./generate_network.py --dirname $dirname --num-nodes $n --num-topics $t --nw-type $nwtype --node-type $nodetype --num-partitions 1 ...."
-  $(./generate_network.py --dirname $dirname --num-nodes $n --num-topics $t --nw-type $nwtype --node-type $nodetype --num-partitions 1)
+  echo "Generating ./generate_network.py --dirname $dirname --num-nodes $n --num-topics $t --nw-type $nwtype --node-type $nodetype --num-partitions 1 --num-subnets $s ...."
+  $(./generate_network.py --dirname $dirname --num-nodes $n --num-topics $t --nw-type $nwtype --node-type $nodetype --num-partitions 1 --num-subnets $s)
 done
